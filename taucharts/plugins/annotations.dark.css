@@ -1,0 +1,17 @@
+/*!
+ * /*
+ * taucharts@2.7.2 (2019-04-22)
+ * Copyright 2019 Targetprocess, Inc.
+ * Licensed under Apache License 2.0
+ * * /
+ * 
+ */
+.tau-chart__annotation-line {
+  stroke-width: 2px;
+  stroke-dasharray: 1,1;
+  shape-rendering: crispEdges;
+}
+.tau-chart__annotation-area.tau-chart__area polygon {
+  opacity: 0.1;
+}
+

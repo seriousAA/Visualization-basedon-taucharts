@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vis</title>
+    <script type="text/javascript" src="d3things/d3/dist/d3.js"></script>
+    <script type="text/javascript" src="taucharts/taucharts.min.js"></script>
+    <script type="text/javascript" src="jquery/dist/jquery.min.js"></script>
+    <script src="ySelect-master/js/bootstrap.min.js"></script>
+    <script src="ySelect-master/js/ySelect.js"></script>
+    <script type='text/javascript' src="bootstrap-slider/dist/bootstrap-slider.js"></script>
+    <link rel="stylesheet" href="taucharts/taucharts.min.css">
+    <link href="ySelect-master/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="ySelect-master/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="ySelect-master/css/ySelect.css" rel="stylesheet" type="text/css">
+    <link href="bootstrap-slider/dist/css/bootstrap-slider.css" rel="stylesheet" type="text/css">
+    <style type="text/css">
+        #sizeSlider .slider-selection {
+            background: #BABABA;
+        }
+    </style>
+
+</head>
+<body>
+<div class="container">
+    <select id='m1' class="demo" multiple="multiple">
+        <option value="1">Married by 15</option>
+        <option value="2">Married by 18</option>
+        <option value="3">GDP per capita ($)</option>
+        <option value="4">Gender Inequality Index</option>
+        <option value="5">Antenatal care (four or more visits - live birth in the last 3 or 5 years)</option>
+        <option value="6">Maternal care for the mother after filtration</option>
+        <option value="7">Neonatal mortality rate (during the first 28 days of life - per 1,000 live births)</option>
+        <option value="8">Neonatal mortality rate after filtration</option>
+        <option value="9">Maternal mortality rate (maternal deaths per 1,000 live births)</option>
+    </select>
+
+    <select id='m2' class="demo1" multiple="multiple" >
+        <option value="1">Married by 15</option>
+        <option value="2">Married by 18</option>
+        <option value="3">GDP per capita ($)</option>
+        <option value="4">Gender Inequality Index</option>
+        <option value="5">Antenatal care (four or more visits - live birth in the last 3 or 5 years)</option>
+        <option value="6">Maternal care for the mother after filtration</option>
+        <option value="7">Neonatal mortality rate (during the first 28 days of life - per 1,000 live births)</option>
+        <option value="8">Neonatal mortality rate after filtration</option>
+        <option value="9">Maternal mortality rate (maternal deaths per 1,000 live births)</option>
+    </select>
+
+    <select id='m3' class="demo2" multiple="multiple" >
+        <option value="1">Married by 15</option>
+        <option value="2">Married by 18</option>
+        <option value="3">GDP per capita ($)</option>
+        <option value="4">Gender Inequality Index</option>
+        <option value="5">Antenatal care (four or more visits - live birth in the last 3 or 5 years)</option>
+        <option value="6">Maternal care for the mother after filtration</option>
+        <option value="7">Neonatal mortality rate (during the first 28 days of life - per 1,000 live births)</option>
+        <option value="8">Neonatal mortality rate after filtration</option>
+        <option value="9">Maternal mortality rate (maternal deaths per 1,000 live births)</option>
+    </select>
+
+    <select id='m4' class="demo3" multiple="multiple" >
+        <option value="1">All Regions</option>
+        <option value="2">South Asia</option>
+        <option value="3">Eastern Europe & Central Asia</option>
+        <option value="4">Sub-Saharan Africa</option>
+        <option value="5">Northern Africa</option>
+        <option value="6">Latin America & the Caribbean</option>
+        <option value="7">South-eastern Asia</option>
+        <option value="8">Western Asia</option>
+        <option value="9">Oceania</option>
+        <option value="10">Eastern Asia</option>
+    </select>
+    <br/>
+    <button id="current" class="btn btn-primary btn-sm">生成</button>
+    <input id="size" data-slider-id='sizeSlider' type="text" class="span2" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="[10,40]"/>
+</div>
+<div style="height: 800px" id="scatter"></div>
+<script type="text/javascript">
+    var xlabel="Married by 18";
+    var ylabel="Married by 15";
+    var slabel="GDP per capita ($)";
+    var rlabel="All Regions";
+    var initSize=40;
+    var sizeSlider=$("#size").slider({})
+        .data('slider')
+        .on('slide',function(){
+            $.getJSON ("Child-marriage_mar-2018.json", function (datasource)
+            {
+                var none=datasource.filter((d)=>{
+                    return d[xlabel] === "#N/A"||d[ylabel] === "#N/A"||d[slabel] === "#N/A";
+                });
+                for(var i=0;i<none.length;i++)
+                {
+                    var index=datasource.indexOf(none[i]);
+                    index>-1&&datasource.splice(index,1);
+                }
+                if(rlabel !== "All Regions")//!==类型不同就直接返回true
+                {
+                    datasource=datasource.filter((d)=>{
+                        return d['Region'] === rlabel;
+                    });
+                }
+                // for(var i=0;i<datasource.length;i++)
+                // {
+                //     datasource[i]["Gender Inequality Index"]*=100;
+                // }
+                var chart = new Taucharts.Chart({
+                    data: datasource,
+                    plugins: [
+                        Taucharts.api.plugins.get('tooltip')({
+                            fields: ['Countries and areas','Region','GDP per capita ($)','Gender Inequality Index','Married by 15','Married by 18','Antenatal care (four or more visits - live birth in the last 3 or 5 years)',
+                                'Postnatal care for the mother (received postnatal care within 2 days after birth)','Maternal care for the mother after filtration',
+                            'Neonatal mortality rate (during the first 28 days of life - per 1,000 live births)','Neonatal mortality rate after filtration','Percentage',
+                            'Maternal mortality rate (maternal deaths per 1,000 live births)'],
+                            formatters: {
+                                ['Antenatal care (four or more visits - live birth in the last 3 or 5 years)']:{
+                                    label:"Antenatal care rate"
+                                },
+                                ['Postnatal care for the mother (received postnatal care within 2 days after birth)']:{
+                                    label:"Postnatal care rate"
+                                },
+                                ['Maternal care for the mother after filtration']:{
+                                    label:"Maternal care rate (Overall)"
+                                },
+                                ['Neonatal mortality rate (during the first 28 days of life - per 1,000 live births)']:{
+                                    label:"Neonatal mortality rate ‰"
+                                },
+                                ['Percentage']:{
+                                    label:"Percentage of Intrapartum and Preterm"
+                                },
+                                ['Neonatal mortality rate after filtration']:{
+                                    label:"Neonatal mortality rate (Overall) ‰"
+                                },
+                                ['Maternal mortality rate (maternal deaths per 1,000 live births)']:{
+                                    label:"Maternal mortality rate ‰"
+                                }
+                            }
+                        }),
+                        Taucharts.api.plugins.get('legend')(),
+                        Taucharts.api.plugins.get('export-to')(),
+                        Taucharts.api.plugins.get('trendline')(),
+                    ],
+                    type: 'scatterplot',
+                    x: xlabel,
+                    y: ylabel,
+                    color: 'Region', // there will be two lines with different colors on the chart
+                    size: slabel,
+                    settings:{
+                        fitModel:"whole-view"
+                    },
+                    guide: {
+                        showGridLines:'xy', //show horizontal line
+                        x: { nice: true },
+                        y: { nice: true },
+                        size: {
+                            minSize: sizeSlider.getValue()[0],
+                            maxSize: sizeSlider.getValue()[1]
+                        }
+                    }
+                });
+                $("#scatter").empty();
+                chart.renderTo("#scatter");
+            });
+        });
+    $(function() {
+        $('.demo').ySelect(
+            {
+                placeholder: 'X轴',
+                searchText: '搜索',
+                showSearch: true,
+                numDisplayed: 1,
+                overflowText: '已选中 {n}项'
+            }
+        );
+        $('.demo1').ySelect(
+            {
+                placeholder: 'Y轴',
+                searchText: '搜索',
+                showSearch: true,
+                numDisplayed: 1,
+                overflowText: '已选中 {n}项'
+            }
+        );
+        $('.demo2').ySelect(
+            {
+                placeholder: 'PlotSize',
+                searchText: '搜索',
+                showSearch: true,
+                numDisplayed: 1,
+                overflowText: '已选中 {n}项'
+            }
+        );
+        $('.demo3').ySelect(
+            {
+                placeholder: '地区划分',
+                searchText: '搜索',
+                showSearch: true,
+                numDisplayed: 1,
+                overflowText: '已选中 {n}项'
+            }
+        );
+        $("#current").click(function () {
+            xlabel = $("#m1").ySelectedTexts();
+            ylabel = $("#m2").ySelectedTexts();
+            slabel = $("#m3").ySelectedTexts();
+            rlabel = $("#m4").ySelectedTexts();
+            if(xlabel=="")
+            {
+                xlabel="Married by 18";
+            }
+            if(ylabel=="")
+            {
+                ylabel="Married by 15"
+            }
+            if(slabel=="")
+            {
+                slabel="GDP per capita ($)";
+            }
+            if(rlabel=="")
+            {
+                rlabel="All Regions";
+            }
+            sizeSlider.setValue([10,initSize], true);
+        });});
+    window.onload = function () {
+        $.getJSON ("Child-marriage_mar-2018.json", function (datasource)
+        {
+            var none=datasource.filter((d)=>{
+                return d[xlabel] === "#N/A"||d[ylabel] === "#N/A"||d[slabel] === "#N/A";
+            });
+            console.log(none);
+            for(var i=0;i<none.length;i++)
+            {
+                var index=datasource.indexOf(none[i]);
+                index>-1&&datasource.splice(index,1);
+            }
+            console.log(datasource);
+            var chart = new Taucharts.Chart({
+                data: datasource,
+                plugins: [
+                    Taucharts.api.plugins.get('tooltip')({
+                        fields: ['Countries and areas','Region','GDP per capita ($)','Gender Inequality Index','Married by 15','Married by 18','Antenatal care (four or more visits - live birth in the last 3 or 5 years)',
+                            'Postnatal care for the mother (received postnatal care within 2 days after birth)','Maternal care for the mother after filtration',
+                            'Neonatal mortality rate (during the first 28 days of life - per 1,000 live births)','Neonatal mortality rate after filtration','Percentage',
+                            'Maternal mortality rate (maternal deaths per 1,000 live births)'],
+                        formatters: {
+                            ['Antenatal care (four or more visits - live birth in the last 3 or 5 years)']:{
+                                label:"Antenatal care rate"
+                            },
+                            ['Postnatal care for the mother (received postnatal care within 2 days after birth)']:{
+                                label:"Postnatal care rate"
+                            },
+                            ['Maternal care for the mother after filtration']:{
+                                label:"Maternal care rate (Overall)"
+                            },
+                            ['Neonatal mortality rate (during the first 28 days of life - per 1,000 live births)']:{
+                                label:"Neonatal mortality rate ‰"
+                            },
+                            ['Percentage']:{
+                                label:"Percentage of Intrapartum and Preterm"
+                            },
+                            ['Neonatal mortality rate after filtration']:{
+                                label:"Neonatal mortality rate (Overall) ‰"
+                            },
+                            ['Maternal mortality rate (maternal deaths per 1,000 live births)']:{
+                                label:"Maternal mortality rate ‰"
+                            }
+                        }
+                    }),
+                    Taucharts.api.plugins.get('legend')(),
+                    Taucharts.api.plugins.get('export-to')(),
+                    Taucharts.api.plugins.get('trendline')(),
+                ],
+                type: 'scatterplot',
+                x: xlabel,
+                y: ylabel,
+                color: 'Region', // there will be two lines with different colors on the chart
+                size: slabel,
+                settings:{
+                    fitModel:"whole-view"
+                },
+                guide: {
+                    showGridLines:'xy', //show horizontal line
+                    x: { nice: true },
+                    y: { nice: true },
+                    size: {
+                        minSize: 10,
+                        maxSize: initSize
+                    }
+                }
+            });
+            console.log(chart);
+            chart.renderTo('#scatter');
+            // var chart = new Taucharts.Chart({
+            //     data: datasource,
+            //     type: 'map',
+            //     code: 'Countries and areas',
+            //     fill: 'Married by 15',
+            //     guide: {
+            //         showNames: true
+            //     }
+            // });
+        });
+    }
+</script>
+</body>
+</html>
