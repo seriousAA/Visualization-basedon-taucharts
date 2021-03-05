@@ -85,7 +85,7 @@
     var sizeSlider=$("#size").slider({})
         .data('slider')
         .on('slide',function(){
-            $.getJSON ("Child-marriage_mar-2018.json", function (datasource)
+            $.getJSON ("Data.json", function (datasource)
             {
                 var none=datasource.filter((d)=>{
                     return d[xlabel] === "#N/A"||d[ylabel] === "#N/A"||d[slabel] === "#N/A";
